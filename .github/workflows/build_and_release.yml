@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v2
+    - uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+    - name: Install Dependencies
+      run: poetry install
+    - name: build the sucker
+      run: make build
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "utils"
+        body: "It's releasin' time"
+        generateReleaseNotes: true
+        commit: ${{ GITHUB_SHA }}
+        token: ${{ secrets.YOUR_GITHUB_TOKEN }}

@@ -11,6 +11,7 @@ httpx = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 poetry = "^1.1.14"
+black = "^22.6.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

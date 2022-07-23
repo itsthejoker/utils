@@ -20,11 +20,15 @@ jobs:
         virtualenvs-create: true
     - name: Install Dependencies
       run: poetry install
-    - name: build the sucker
-      run: make build
       # https://stackoverflow.com/a/64195658
     - name: Add SHORT_SHA env property with commit short sha
-      run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+      run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+    - name: Inject version
+      run: |
+        touch src/__version__.py
+        echo "__version__ = '${{ env.SHORT_SHA }}'" >> src/__version__.py
+    - name: build the sucker
+      run: make build
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "utils"

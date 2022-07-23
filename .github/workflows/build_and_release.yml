@@ -18,20 +18,20 @@ jobs:
     - name: Install Env
       # this should be all we need because shiv will download the deps itself
       run: |
+        pip install --upgrade pip
         pip install shiv
         pip install poetry
-      # https://stackoverflow.com/a/64195658
-    - name: Add SHORT_SHA env property with commit short sha
-      run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+    - name: Add CURRENT_TIME env property
+      run: echo "CURRENT_TIME=$(date -Iseconds)" >> $GITHUB_ENV
     - name: Build the sucker
       run: |
-        sed -i -e "s/?????/${{ env.SHORT_SHA }}/g" src/__init__.py
+        sed -i -e "s/?????/v${{ env.CURRENT_TIME }}/g" src/__init__.py
         make build
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "utils"
         body: "It's releasin' time"
         generateReleaseNotes: false
-        tag: ${{ env.SHORT_SHA }}
+        tag: v${{ env.CURRENT_TIME }}
         commit: master
         token: ${{ secrets.PAT }}

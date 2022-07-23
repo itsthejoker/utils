@@ -23,10 +23,8 @@ jobs:
       # https://stackoverflow.com/a/64195658
     - name: Add SHORT_SHA env property with commit short sha
       run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
-    - name: Inject version
-      run: |
-        touch src/__version__.py
-        echo "__version__ = '${{ env.SHORT_SHA }}'" >> src/__version__.py
+    - name: Inject version into src.__version__
+      run: echo "__version__ = '${{ env.SHORT_SHA }}'" > src/__init__.py
     - name: build the sucker
       run: make build
     - uses: ncipollo/release-action@v1

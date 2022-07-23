@@ -27,6 +27,6 @@ jobs:
         artifacts: "utils"
         body: "It's releasin' time"
         generateReleaseNotes: true
-        tag: ${{ env.GITHUB_SHA }}
+        tag: ${{ secrets.GITHUB_SHA }}
         commit: master
         token: ${{ secrets.PAT }}

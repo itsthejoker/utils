@@ -22,16 +22,16 @@ jobs:
         pip install shiv
         pip install poetry
     - name: Add CURRENT_TIME env property
-      run: echo "CURRENT_TIME=$(date -Iseconds)" >> $GITHUB_ENV
+      run: echo "CURRENT_TIME_VERSION=v$(date -Iseconds)" >> $GITHUB_ENV
     - name: Build the sucker
       run: |
-        sed -i -e "s/?????/v${{ env.CURRENT_TIME }}/g" src/__init__.py
+        sed -i -e "s/?????/${{ env.CURRENT_TIME_VERSION }}/g" src/__init__.py
         make build
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "utils"
         body: "It's releasin' time"
         generateReleaseNotes: false
-        tag: v${{ env.CURRENT_TIME }}
+        tag: ${{ env.CURRENT_TIME_VERSION }}
         commit: master
         token: ${{ secrets.PAT }}

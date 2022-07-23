@@ -1,14 +1,14 @@
 import string
 
 
-def flip_char(char):
+def flip_char(char: str):
     if char in string.ascii_lowercase:
         return string.ascii_uppercase[string.ascii_lowercase.find(char)]
     else:
         return string.ascii_lowercase[string.ascii_uppercase.find(char)]
 
 
-def main(args: list):
+def main(args: list[str]):
     message = " ".join(args)
     new_beautiful_string = []
 

@@ -28,4 +28,4 @@ jobs:
         body: "It's releasin' time"
         generateReleaseNotes: true
         commit: ${{ env.GITHUB_SHA }}
-        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
+        token: ${{ secrets.PAT }}

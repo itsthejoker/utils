@@ -2,5 +2,5 @@
 import uuid
 
 
-def main(*args):
+def main(args: list[str]):
     print(uuid.uuid4())

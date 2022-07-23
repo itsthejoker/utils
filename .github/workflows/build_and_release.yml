@@ -22,11 +22,14 @@ jobs:
       run: poetry install
     - name: build the sucker
       run: make build
+      # https://stackoverflow.com/a/64195658
+    - name: Add SHORT_SHA env property with commit short sha
+      run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "utils"
         body: "It's releasin' time"
         generateReleaseNotes: true
-        tag: ${{ github.sha }}
+        tag: ${SHORT_SHA}
         commit: master
         token: ${{ secrets.PAT }}

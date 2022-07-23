@@ -3,6 +3,8 @@ import argparse
 import importlib
 import sys
 
+import src
+
 BANNER = """
                 .    o8o  oooo   o8o      .    o8o                     
               .o8    `"'  `888   `"'    .o8    `"'                     
@@ -17,11 +19,20 @@ def main():
     parser = argparse.ArgumentParser(
         description='Run a specific script by name. If no name is provided, start a REPL.'
     )
-    parser.add_argument('user_input', type=str, nargs='*',
-                        help='The name of the script that you want to run plus any arguments for that script.')
+    parser.add_argument(
+        'user_input',
+        type=str,
+        nargs='*',
+        help='The name of the script that you want to run plus any arguments for that script.')
+    parser.add_argument(
+        '--version', action='store_true', help="Print out the version string."
+    )
 
     args = parser.parse_args()
     user_input = args.user_input
+    if args.version is True:
+        print(src.__version__)
+        sys.exit()
     if len(user_input) == 0:
         code.interact(banner=BANNER, local=locals())
     else:

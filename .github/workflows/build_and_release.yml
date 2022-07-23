@@ -31,7 +31,7 @@ jobs:
       with:
         artifacts: "utils"
         body: "It's releasin' time"
-        generateReleaseNotes: true
+        generateReleaseNotes: false
         tag: ${{ env.SHORT_SHA }}
         commit: master
         token: ${{ secrets.PAT }}

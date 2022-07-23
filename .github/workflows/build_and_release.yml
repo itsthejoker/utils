@@ -22,7 +22,9 @@ jobs:
         pip install shiv
         pip install poetry
     - name: Add CURRENT_TIME env property
-      run: echo "CURRENT_TIME_VERSION=v$(date -Iseconds)" >> $GITHUB_ENV
+      run: echo "CURRENT_TIME_VERSION=v$(date '+%s')" >> $GITHUB_ENV
+    - name: test
+      run: echo ${{ env.CURRENT_TIME_VERSION }}
     - name: Build the sucker
       run: |
         sed -i -e "s/?????/${{ env.CURRENT_TIME_VERSION }}/g" src/__init__.py

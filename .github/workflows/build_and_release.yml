@@ -15,11 +15,11 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: '3.10.x'
-    - uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-    - name: Install Dependencies
-      run: poetry install
+    - name: Install Env
+      # this should be all we need because shiv will download the deps itself
+      run: |
+        pip install shiv
+        pip install poetry
       # https://stackoverflow.com/a/64195658
     - name: Add SHORT_SHA env property with commit short sha
       run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV

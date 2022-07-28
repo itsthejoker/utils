@@ -1,43 +1,82 @@
 import code
-import argparse
-import importlib
+import random
+import string
 import sys
+import uuid
+
+import click
+import httpx
 
 import src
-
-BANNER = """
-                .    o8o  oooo   o8o      .    o8o                     
-              .o8    `"'  `888   `"'    .o8    `"'                     
-oooo  oooo  .o888oo oooo   888  oooo  .o888oo oooo   .ooooo.   .oooo.o 
-`888  `888    888   `888   888  `888    888   `888  d88' `88b d88(  "8 
- 888   888    888    888   888   888    888    888  888ooo888 `"Y88b.  
- 888   888    888 .  888   888   888    888 .  888  888    .o o.  )88b 
- `V88V"V8P'   "888" o888o o888o o888o   "888" o888o `Y8bod8P' 8""888P' 
-"""
+from src.helpers import flip_char
+from src.art import BANNERS
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Run a specific script by name. If no name is provided, start a REPL."
-    )
-    parser.add_argument(
-        "user_input",
-        type=str,
-        nargs="*",
-        help="The name of the script that you want to run plus any arguments for that script.",
-    )
-    parser.add_argument(
-        "--version", action="store_true", help="Print out the version string."
-    )
-
-    args = parser.parse_args()
-    user_input = args.user_input
-    if args.version is True:
-        print(src.__version__)
+@click.group(
+    context_settings=dict(help_option_names=["-h", "--help", "--halp"]),
+    invoke_without_command=True,
+)
+@click.pass_context
+@click.version_option(version=src.__version__, prog_name="utils")
+def main(ctx):
+    if ctx.invoked_subcommand is None:
+        banner = random.choice(BANNERS)
+        code.interact(banner=banner, local=locals())
         sys.exit()
-    if len(user_input) == 0:
-        code.interact(banner=BANNER, local=locals())
-    else:
-        command_name = user_input.pop(0)
-        module = importlib.import_module(f"src.commands.{command_name}")
-        sys.exit(module.main(user_input))
+
+
+@main.command()
+def uuid4():
+    """Generate a random UUID4."""
+    click.echo(uuid.uuid4())
+
+
+@main.command()
+@click.argument("words", nargs=-1)
+def beautify(words: list[str]):
+    """
+    MAkE YoUr mEsSaGe bEaUtIfUl!!!1!!
+
+    WORDS is either a single string surrounded by double quotes or multiple bare words,
+    e.g. `utils beautify "one two three"` or `utils beautify one two three`.
+    """
+    message = " ".join(words)
+    new_beautiful_string = []
+
+    for num, letter in enumerate(message):
+        if letter in string.ascii_letters:
+            if num % 2:
+                new_beautiful_string.append(flip_char(letter))
+                continue
+        new_beautiful_string.append(letter)
+
+    click.echo("".join(new_beautiful_string))
+
+
+@main.command()
+def update():
+    """Get the newest release from GitHub and install it."""
+    release_data = httpx.get(
+        "https://api.github.com/repos/itsthejoker/utils/releases/latest"
+    )
+    if release_data.status_code != 200:
+        print(
+            f"Something went wrong when talking to github; got a"
+            f" {release_data.status_code} with the following content:\n"
+            f"{release_data.content}"
+        )
+        return
+    json_data = release_data.json()
+    if json_data["name"] == src.__version__:
+        print("Server version is the same as current version; nothing to update.")
+        return
+
+    url = json_data["assets"][0]["browser_download_url"]
+    with open("utils", "wb") as f, httpx.stream("GET", url, follow_redirects=True) as r:
+        for line in r.iter_bytes():
+            f.write(line)
+    print(f"Updated to {json_data['name']}! 🎉")
+
+
+if __name__ == "__main__":
+    main()

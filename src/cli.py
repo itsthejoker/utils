@@ -19,9 +19,10 @@ from src.art import BANNERS
 @click.pass_context
 @click.version_option(version=src.__version__, prog_name="utils")
 def main(ctx):
+    """Launch a utility or drop into a command line REPL if no command is given."""
     if ctx.invoked_subcommand is None:
         banner = random.choice(BANNERS)
-        code.interact(banner=banner, local=locals())
+        code.interact(banner=banner, local=globals())
         sys.exit()
 
 

@@ -34,6 +34,12 @@ def uuid4():
 
 
 @main.command()
+def ping():
+    """Pong!"""
+    click.echo("Pong!")
+
+
+@main.command()
 @click.argument("words", nargs=-1)
 def beautify(words: list[str]):
     """

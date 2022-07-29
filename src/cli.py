@@ -6,6 +6,7 @@ import uuid
 
 import click
 import httpx
+from shiv.bootstrap import current_zipfile
 
 import src
 from src.helpers import flip_char
@@ -57,26 +58,27 @@ def beautify(words: list[str]):
 @main.command()
 def update():
     """Get the newest release from GitHub and install it."""
-    release_data = httpx.get(
+    response = httpx.get(
         "https://api.github.com/repos/itsthejoker/utils/releases/latest"
     )
-    if release_data.status_code != 200:
+    if response.status_code != 200:
         print(
             f"Something went wrong when talking to github; got a"
-            f" {release_data.status_code} with the following content:\n"
-            f"{release_data.content}"
+            f" {response.status_code} with the following content:\n"
+            f"{response.content}"
         )
         return
-    json_data = release_data.json()
-    if json_data["name"] == src.__version__:
+    release_data = response.json()
+    if release_data["name"] == src.__version__:
         print("Server version is the same as current version; nothing to update.")
         return
 
-    url = json_data["assets"][0]["browser_download_url"]
-    with open("utils", "wb") as f, httpx.stream("GET", url, follow_redirects=True) as r:
-        for line in r.iter_bytes():
-            f.write(line)
-    print(f"Updated to {json_data['name']}! 🎉")
+    url = release_data["assets"][0]["browser_download_url"]
+    with current_zipfile() as archive:
+        with open(archive.filename, "wb") as f, httpx.stream("GET", url, follow_redirects=True) as r:
+            for line in r.iter_bytes():
+                f.write(line)
+    print(f"Updated to {release_data['name']}! 🎉")
 
 
 if __name__ == "__main__":

@@ -34,9 +34,34 @@ def uuid4():
 
 
 @main.command()
-def ping():
-    """Pong!"""
-    click.echo("Pong!")
+@click.argument("dice")
+def roll(dice: str):
+    """Roll some dice. Format: utils roll 3d8"""
+    if "d" not in dice:
+        click.echo("Missing part of the call. Example: 1d10")
+        return
+    if len(dice.split("d")) != 2:
+        click.echo("Error parsing dice. Example: 2d6")
+        return
+    num, sides = dice.split("d")
+    try:
+        num = int(num)
+        sides = int(sides)
+    except ValueError:
+        click.echo("Need numbers for the dice. Example: 30d4")
+        return
+    if num < 1 or sides < 1:
+        click.echo("Dude. Example: 2d8")
+        return
+    values: list[int] = []
+    for die in range(num):
+        values.append(random.randint(1, sides))
+
+    if num == 1:
+        click.echo(f"You rolled a {values[0]}.")
+    else:
+        click.echo(f"You rolled: {'+'.join([str(item) for item in values])}")
+        click.echo(f"Total: {sum(values)}")
 
 
 @main.command()
@@ -54,9 +79,8 @@ def beautify(words: list[str]):
     for num, letter in enumerate(message):
         if letter in string.ascii_letters:
             if num % 2:
-                new_beautiful_string.append(flip_char(letter))
-                continue
-        new_beautiful_string.append(letter)
+                letter = flip_char(letter)
+            new_beautiful_string.append(letter)
 
     click.echo("".join(new_beautiful_string))
 
@@ -68,15 +92,15 @@ def update():
         "https://api.github.com/repos/itsthejoker/utils/releases/latest"
     )
     if response.status_code != 200:
-        print(
-            f"Something went wrong when talking to github; got a"
+        click.echo(
+            f"Something went wrong when talking to GitHub; got a"
             f" {response.status_code} with the following content:\n"
             f"{response.content}"
         )
         return
     release_data = response.json()
     if release_data["name"] == src.__version__:
-        print("Server version is the same as current version; nothing to update.")
+        click.echo("Server version is the same as current version; nothing to update.")
         return
 
     url = release_data["assets"][0]["browser_download_url"]
@@ -84,7 +108,7 @@ def update():
         with open(archive.filename, "wb") as f, httpx.stream("GET", url, follow_redirects=True) as r:
             for line in r.iter_bytes():
                 f.write(line)
-    print(f"Updated to {release_data['name']}! 🎉")
+    click.echo(f"Updated to {release_data['name']}! 🎉")
 
 
 if __name__ == "__main__":

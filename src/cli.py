@@ -6,6 +6,8 @@ import uuid
 
 import click
 import httpx
+from rich import pretty
+from rich import print as rprint
 from shiv.bootstrap import current_zipfile
 
 import src
@@ -22,8 +24,24 @@ from src.art import BANNERS
 def main(ctx):
     """Launch a utility or drop into a command line REPL if no command is given."""
     if ctx.invoked_subcommand is None:
+        def print_wrapper(*args, **kwargs):
+            # I know this is dumb.
+            # https://github.com/Textualize/rich/discussions/2462
+            if "crop" in kwargs:
+                del kwargs["crop"]
+            rprint(*args, **kwargs)
+
         banner = random.choice(BANNERS)
-        code.interact(banner=banner, local=globals())
+
+        # source of code.interact, just expanded to fit Rich in there
+        console = code.InteractiveConsole(globals())
+        console.print = print_wrapper
+        pretty.install(console)  # type: ignore
+        try:
+            import readline
+        except ImportError:
+            pass
+        console.interact(banner, None)
         sys.exit()
 
 

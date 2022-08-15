@@ -7,7 +7,7 @@ import uuid
 import click
 import httpx
 from rich import pretty
-from rich import print as rprint
+from rich import print  # yes, deliberately shadow `print`
 from shiv.bootstrap import current_zipfile
 
 import src
@@ -29,7 +29,7 @@ def main(ctx):
             # https://github.com/Textualize/rich/discussions/2462
             if "crop" in kwargs:
                 del kwargs["crop"]
-            rprint(*args, **kwargs)
+            print(*args, **kwargs)
 
         banner = random.choice(BANNERS)
 
